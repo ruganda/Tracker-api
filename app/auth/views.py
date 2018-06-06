@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 @auth.route("/register/",methods=['POST'])
 def sign_up():
     data = request.get_json()
-    if User.find_by_username(data['username']):
-        return {"message": "User with that username already exists."}, 400
+    # if User.find_by_username(data['username']):
+    #     return {"message": "User with that username already exists."}, 400
 
     connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
     cursor = connection.cursor()
