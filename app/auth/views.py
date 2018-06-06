@@ -10,19 +10,19 @@ from datetime import datetime, timedelta
 @auth.route("/register/",methods=['POST'])
 def sign_up():
     data = request.get_json()
+    print(data)
     # if User.find_by_username(data['username']):
     #     return {"message": "User with that username already exists."}, 400
 
     connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
     cursor = connection.cursor()
-
-    query = "INSERT INTO {table} VALUES (NULL, ?, ?, ?)".format(table=User.table_title)
-    cursor.execute(query, (data['name'],data['username'], data['password']))
+    cursor.execute("INSERT INTO users (name, username, password) VALUES( %s, %s, %s)",
+                (data['name'],data['username'], data['password'])) 
 
     connection.commit()
     connection.close()
 
-    return {"message": "User created successfully."}, 201
+    return jsonify({"message": "User created successfully."}), 201
 
 @auth.route('/login/', methods=['POST'])
 def login():
