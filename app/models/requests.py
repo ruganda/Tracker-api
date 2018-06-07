@@ -1,7 +1,8 @@
+from .create_table import connection
 import psycopg2
 class Request:
     table_title = 'requests'
-    def __init__(self, id, item, typ, description, status ="new"):
+    def __init__(self, id, item, typ, description, status ="pending"):
         self.id = id 
         self.item =item
         self.typ =typ
@@ -9,50 +10,50 @@ class Request:
         self.status = status
 
     @classmethod
-    def find_by_id(cls, id):
+    def find_by_id(cls, uid):
         connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
         cursor = connection.cursor()
-
-        query = "SELECT * FROM {table} WHERE id=?".format(table=cls.table_title)
-        result = cursor.execute(query, (id,))
-        row = result.fetchone()
+        cursor.execute("SELECT * FROM requests WHERE Id = %(id)s", {'id': uid})
+        row = cursor.fetchone()
         connection.close()
 
         if row:
+            print(row)
             return row
+            
 
 
     @classmethod
-    def insert(cls, request):
+    def insert(cls, request,owner):
         connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
         cursor = connection.cursor()
-
-        query = "INSERT INTO {table} VALUES(?, ?,?,?,?)".format(table=cls.table_title)
-        cursor.execute(query, (request['item'], request['typ'],request['description'],request['status']))
-
+        query = "INSERT INTO requests (item, typ, description, status, owner) VALUES(%s, %s, %s, %s, %s)"
+        cursor.execute(query, (request['item'], request['typ'],request['description'],request['status'], owner))
+    
         connection.commit()
         connection.close()
 
 
     @classmethod
-    def update(cls, request):
+    def update(cls, uId,request):
         connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
         cursor = connection.cursor()
-
-        query = "UPDATE {table} SET item=?, typ=?, description=? WHERE id=?".format(table=cls.table_title)
-        cursor.execute(query, (request['item'], request['typ'], request['description']))
+        cursor.execute("UPDATE requests SET item=%s, typ=%s, description=%s WHERE Id=%s", (request['item'], request['typ'], request['description'], uId))
 
         connection.commit()
         connection.close()
 
     @classmethod
-    def fetch_all(self):
+    def fetch_all(self,owner):
         connection = psycopg2.connect("dbname='tracker_api' user='postgres' host='localhost' password='15december' port ='5432'")
         cursor = connection.cursor()
-
-        query = "SELECT * FROM {table}".format(table=self.table_title)
-        result = cursor.execute(query)
+        cursor.execute("SELECT * FROM requests WHERE owner = %(owner)s", {'owner': owner})
+        rows = cursor.fetchall()
         requests = []
-        for row in result:
-            requests.append({'item': row[0], 'typ': row[1], 'description': row[2], 'status': row[3] })
+        for row in rows:
+            print(row)
+            requests.append({'id':row[0], 'item': row[1], 'typ': row[2], 'description': row[3], 'status': row[4],"Requester":row[5] })
         connection.close()
+        return requests
+    ######################################################################################################
+    
