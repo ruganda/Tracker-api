@@ -16,12 +16,17 @@ from datetime import datetime, timedelta
 @auth.route("/register/", methods=['POST'])
 def sign_up():
     data = request.get_json()
-    if User.fetch_by_username(data['username']):
-        return jsonify({"message": "User with that username already exists."}), 400
-
-    User.insert_data(data)
-    return jsonify({"message": "User created successfully."}), 201
-
+    if data['name'] and data['username'] and data["password"] and data['isAdmin']:
+        data["name"].strip() 
+        data["username"].strip()
+        if  str(data["username"]).isalpha():
+            
+            if User.fetch_by_username(data['username']):
+                return jsonify({"message": "User with that username already exists."}), 400
+            User.insert_data(data)
+            return jsonify({"message": "User created successfully."}), 201
+        return jsonify({"message": "Invalid input! The inputs should be aphabets"})    
+    return "You need to fill all the fields"
 
 @auth.route('/login/', methods=['POST'])
 def login():
@@ -35,7 +40,7 @@ def login():
         return jsonify({"message": "Missing username parameter"}), 400
     if not password:
         return jsonify({"message": "Missing password parameter"}), 400
-    if User.fetch_by_username(username)and User.fetch_by_password(password):
+    if User.fetch_by_username(username.strip())and User.fetch_by_password(password.strip()):
         access_token = create_access_token(identity=username)
 
         return jsonify({'token': access_token})

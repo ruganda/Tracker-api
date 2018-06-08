@@ -8,7 +8,7 @@ class UserTests(unittest.TestCase):
 
     def setUp(self):
         """ Set up user object before each test"""
-        self.user = User()
+        self.user = User("mubarak","ruganda","password",True)
 
     def test_isuccessful_registration(self):
         """Test is a user with correct credentials can register sucessfully"""
@@ -37,3 +37,12 @@ class UserTests(unittest.TestCase):
         """Test if a non-existing user can login"""
         res = self.user.login("Kapere", "654123")
         self.assertEqual(res, "user does not exist")
+    
+    def test_is_aplha(self):
+        res = User.validate_input("   Ruganda   ")
+        self.assertEqual(res,"Ruganda")
+
+    def test_is_aplha_with_other_characters(self):
+        res = User.validate_input("  *-238 Ruganda   ")
+        self.assertEqual(res,"Your input contains invalid characters")
+        

@@ -74,3 +74,5 @@ class RequestTestCase(unittest.TestCase):
                 content_type='application/json',
                 data=json.dumps(mock_edit))
             self.assertIn('request modifyied', str(rv.data))
+    
+    

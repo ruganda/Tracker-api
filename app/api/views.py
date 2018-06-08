@@ -28,21 +28,23 @@ def get(id):
 @jwt_required
 def post_requests():
     data = request.get_json()
+    if data['item'] and data['typ'] and data["description"]:
+        data["item"].strip() 
+        data["typ"].strip()
+        if  str(data["typ"]).isalpha():
+            owner = get_jwt_identity()
+            response = {'item': data['item'], 'typ': data['typ'],
+                        'description': data['description']}
 
-    # if Request.find_by_id(data["id"]):
-    #     return jsonify({'message': "A request with id '{}' already exists.".format(data['id'])})
-    owner = get_jwt_identity()
-    response = {'item': data['item'], 'typ': data['typ'],
-                'description': data['description'], "status": data['status']}
+            try:
+                Request.insert(response, owner)
+            except Exception as e:
+                print(e)
+                return jsonify({"message": "An error occurred inserting the request."})
 
-    try:
-        Request.insert(response, owner)
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "An error occurred inserting the request."})
-
-    return jsonify({'message': 'Request added successfully'}), 201
-
+            return jsonify({'message': 'Request added successfully'}), 201
+        return jsonify({'message': 'The type can only either be maintenence or Repair'}), 201
+    return jsonify({'message': 'The All inputs are required '}), 201    
 
 @api.route("/requests/<int:id>", methods=['PUT'])
 @jwt_required

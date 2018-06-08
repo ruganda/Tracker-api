@@ -117,3 +117,11 @@ class User:
 
         connection.commit()
         connection.close()
+
+    @classmethod
+    def validate_input(cls,input):
+        """Validates api inputs"""
+        input.strip()
+        if not input.isalpha():       
+            return "Your input contains invalid characters"
+    
