@@ -1,6 +1,7 @@
 
 """ This module contains all the view functions for the auth blue print"""
 from flask import Flask, jsonify, request
+from ..models.requests import Request
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity, get_jwt_claims
@@ -22,7 +23,6 @@ def sign_up():
     return jsonify({"message": "User created successfully."}), 201
 
 
-
 @auth.route('/login/', methods=['POST'])
 def login():
     """Logs in a registered user and gives a token in return"""
@@ -42,9 +42,3 @@ def login():
     return jsonify({"message": "UnAuthorized user"}), 401
 
 ###################################################################
-
-@auth.route("/admin/requests/")
-@jwt_required
-def fetch_admin_requests():
-    requests = User.admin_get()
-    return jsonify(requests), 200
