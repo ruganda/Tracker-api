@@ -49,8 +49,9 @@ def post_requests():
 def put(id):
     data = request.get_json()
     a_request = Request.find_by_id(id)
-    
-    to_update = {'item': data["item"], 'typ': data["typ"], 'description':data["description"]}
+
+    to_update = {'item': data["item"], 'typ': data["typ"],
+                 'description': data["description"]}
     r_id = a_request[0]
     if a_request:
         try:

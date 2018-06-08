@@ -80,7 +80,7 @@ class User:
         return user
 
     ###################################### Admin ####################
-    
+
     @classmethod
     def admin_get(self):
         connection = psycopg2.connect(
