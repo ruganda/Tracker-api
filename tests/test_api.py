@@ -12,14 +12,57 @@ class RequestTestCase(unittest.TestCase):
         self.app_context.push()
         self.client = self.app.test_client
 
-    # def tearDown(self):
-    #     self.app_context.pop()
+    # def register_user(self):
+    #     return self.client().post('api/v1/auth/register', content_type='application/json', data=json.dumps(test_user1))
+
+    # def login_user(self):
+    #     return self.client().post('api/v1/auth/login',content_type='application/json', data=json.dumps(test_login1))
+
+    def get_token(self):
+        self.client().post('api/v1/auth/register/',
+                           data=json.dumps({
+                               "name": "Paul Messi",
+                               'username': 'messi',
+                               'password': 'password'
+                           }),
+                           content_type='application/json')
+        response = self.client().post('api/v1/auth/login/',
+                                      data=json.dumps({
+                                          'username': 'messi',
+                                          'password': 'password'
+                                      }),
+                                      content_type='application/json')
+        data = json.loads(response.data.decode())
+        print(data)
+        print(data['token'])
+        return data['token']
+
+    def test_fetching_requests_without_token(self):
+        """ Tests accessing the request endpoint without a token """
+        response = self.client().get('api/v1/Request/')
+        self.assertEqual(response.status_code, 401)
+
+    def test_accessing_request_view_with_invalid_or_expired_token(self):
+        """ Tests accessing the bucketlist endpoint with an invalid
+        or expired token """
+        response = self.client().get('api/v1/Request/',
+                                     headers={'Authorization':
+                                              'XBA5567SJ2K119'})
+        self.assertEqual(response.status_code, 401)
 
     def test_request_creation(self):
         """Test API can create a request (POST request)"""
+    with self.test_client() as c:
+        rv = c.post('/api/v1/auth/register', json={'test12'
+            'username': 'flask', 'password': 'secret'
+        })
+        json_data = rv.get_json()
+        assert verify_token(email, json_data['token'])
+        
         response = self.client().post('api/v1/Request/',
                                       content_type='application/json',
-                                      data=json.dumps(mock_data))
+                                      data=json.dumps(mock_data),
+                                      headers={'Authorization':"Bearer"+self.get_token})
 
         self.assertEqual(response.status_code, 201)
         self.assertIn('created', str(response.data))
@@ -74,5 +117,3 @@ class RequestTestCase(unittest.TestCase):
                 content_type='application/json',
                 data=json.dumps(mock_edit))
             self.assertIn('request modifyied', str(rv.data))
-    
-    
